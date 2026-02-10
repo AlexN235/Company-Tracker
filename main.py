@@ -14,12 +14,13 @@ import tkinter as tk
 from tkinter import ttk
 
 root = tk.Tk()
+root.minsize(500,350)
 
 style = ttk.Style()
 style.configure("BW.TLabel", foreground="black", background="white")
 
-sheetFrame = ttk.Frame(root);
-buttonFrame = ttk.Frame(root);
+sheetFrame = ttk.Frame(root)
+buttonFrame = ttk.Frame(root)
 
 # Buttons
 addBtn = ttk.Button(buttonFrame, text="Add")
@@ -79,12 +80,49 @@ treeview.insert(
                     "N/A"
                     )
                 )
-               
+
 # Scrollbars
 v_scrollbar = ttk.Scrollbar(sheetFrame, orient=tk.VERTICAL, command=treeview.yview)
 treeview.configure(yscrollcommand=v_scrollbar.set)
 h_scrollbar = ttk.Scrollbar(sheetFrame, orient=tk.HORIZONTAL, command=treeview.xview)
 treeview.configure(xscrollcommand=h_scrollbar.set)
+
+def delEntry(event):
+    event.widget.destroy()
+   
+def acceptEntry(event, row, col):
+    info = event.widget.get()
+    treeview.set(row, column=col, value=info)
+    event.widget.destroy()
+
+def createEntryEdit(row, col):
+    x, y, width, height = treeview.bbox(row, col)
+    entry = ttk.Entry(sheetFrame)
+    entry.bind("<FocusOut>", delEntry)
+    entry.bind("<Return>", lambda event: acceptEntry(event, row, col))
+    entry.focus_set()
+    entry.place(x=x, y=y)
+    
+def editEntry(event):
+    row = treeview.identify_row(event.y)
+    col = int(treeview.identify_column(event.x)[1:])
+    
+    print(treeview.item(row, 'values'))
+    
+    createEntryEdit(row, col-1)
+    
+
+    
+treeview.bind("<Double-1>", editEntry)
+
+# Resize
+def resize_window(event):
+    if(event.widget == root):
+        winWeight = root.winfo_width()
+        winHeight = root.winfo_height()
+        root.columnconfigure(0, weight=winWeight)  
+        root.rowconfigure(1, weight=winHeight)
+root.bind("<Configure>", resize_window)
 
 h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
 treeview.pack(side=tk.LEFT, fill=tk.BOTH, expand=True);
