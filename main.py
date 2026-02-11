@@ -66,12 +66,15 @@ def addNewEntry(entries, window):
                 values=inp
                 )
     window.destroy()
-        
+
+def deleteRow():
+    iid = treeview.focus()
+    treeview.delete(iid)
 
 # Buttons
 addBtn = ttk.Button(buttonFrame, command=createAddWindow, text="Add")
 addBtn.pack(side=tk.LEFT, padx=10)
-deleteBtn = ttk.Button(buttonFrame, text="Delete")
+deleteBtn = ttk.Button(buttonFrame, command=deleteRow, text="Delete")
 deleteBtn.pack(side=tk.LEFT, padx=10)
 ttk.Frame(buttonFrame, width=10).pack(side=tk.LEFT)
 findEntry = ttk.Entry(buttonFrame)
@@ -88,6 +91,9 @@ treeview = ttk.Treeview(
 for i in category:
     treeview.heading(i, text=i)
     treeview.column(i, width=150)
+    
+def getTreeview():
+    return treeview
 
 # treeview.heading("Name", text="Company Name")
 # treeview.heading("Title", text="Job Title")
@@ -156,8 +162,8 @@ def editEntry(event):
     
 treeview.bind("<Double-1>", editEntry)
 
-def deleteRow(event, selectedRow):
 
+    
 # Resize
 def resize_window(event):
     if(event.widget == root):
