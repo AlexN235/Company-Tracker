@@ -12,7 +12,7 @@ category = (
         "Last Date Applied",
         "General Application",
         "Cover Letter",
-        "Note",
+        "Note"
         )
 
 # Run main window.
@@ -42,7 +42,6 @@ def createMenu():
         data = []
         for child in children:  
             row = treeview.item(child)['values']
-            print(row)
             data.append(row)
             
         #Save data
@@ -69,7 +68,6 @@ def createDataview():
         columns=category,
         show="headings",
     )
-    
     for i in category:
         treeview.heading(i, text=i)
         treeview.column(i, width=150)
@@ -95,9 +93,19 @@ def createDataview():
         col = int(treeview.identify_column(event.x)[1:])
 
         createEntryEdit(row, col-1)
-    
+        
+    def columnSort(col):
+        items = []
+        for i in treeview.get_children():
+            items.append(i)
+        
+        index = category.index(col)
+        items.sort(key=lambda item: treeview.item(item)['values'][index])
+        
+        for i, row in enumerate(items):
+            treeview.move(row, '', i)
+
     treeview.bind("<Double-1>", editEntry)
-    
     treeview.insert(
                     "",
                     tk.END, 
@@ -112,7 +120,9 @@ def createDataview():
                         "N/A"
                         )
                     )
-                    
+    for col in category:
+        treeview.heading(col, command=lambda x=col: columnSort(x))
+
     # Scrollbars
     v_scrollbar = ttk.Scrollbar(sheetFrame, orient=tk.VERTICAL, command=treeview.yview)
     treeview.configure(yscrollcommand=v_scrollbar.set)
