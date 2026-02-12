@@ -179,7 +179,23 @@ def createButtons():
         treeview.delete(iid)
         
     # Find button functionality
-    # TODO
+    detachedItems = []
+    def find(x):
+        # reattach previously detached items
+        for idd, i in detachedItems:
+            treeview.move(idd, "", i)
+        detachedItems.clear()
+        
+        # find all items to detach (remove)
+        entry = x.get().lower()
+        if(entry == ""):
+            return
+        for i, idd in enumerate(treeview.get_children()):
+            lst = ' '.join(treeview.item(idd)['values']).lower()
+            if entry not in ''.join(lst):
+                detachedItems.insert(0, (idd, i))
+                treeview.detach(idd)
+                
     
     # UI for the buttons
     buttonFrame = ttk.Frame(root)
@@ -194,7 +210,7 @@ def createButtons():
     findEntry = ttk.Entry(buttonFrame)
     findEntry.pack(side=tk.LEFT)
     
-    findBtn = ttk.Button(buttonFrame, text="Find")
+    findBtn = ttk.Button(buttonFrame, command=lambda: find(findEntry), text="Find")
     findBtn.pack(side=tk.LEFT)
     
     buttonFrame.grid(row=0, column=0, padx=10, pady=10, sticky="w")
