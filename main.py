@@ -1,6 +1,8 @@
 # Company Tracker project.
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
+import pandas as pd
 
 category = (
         "Company Name",
@@ -19,6 +21,44 @@ root.minsize(500,350)
 
 style = ttk.Style()
 style.configure("BW.TLabel", foreground="black", background="white")
+
+
+## Create topbar menu
+def createMenu():
+    def openFile():
+        filePath = filedialog.askopenfilename()
+        df = pd.read_csv(filePath)
+        
+        for row in treeview.get_children():
+            treeview.delete(row)
+        for row in df.values:
+            treeview.insert('', 'end', values=tuple(row))
+        
+    def saveFile():
+        filePath = filedialog.asksaveasfilename()
+        
+        # Get data
+        children = treeview.get_children()
+        data = []
+        for child in children:  
+            row = treeview.item(child)['values']
+            print(row)
+            data.append(row)
+            
+        #Save data
+        df = pd.DataFrame(data, columns=category)
+        df.to_csv(filePath, index=False)
+        
+    
+    menu = tk.Menu(root)
+    root.config(menu=menu)
+    
+    fileMenu = tk.Menu(menu)
+    menu.add_cascade(label="File", menu=fileMenu)
+    fileMenu.add_command(label="Open", command=openFile)
+    fileMenu.add_command(label="Save", command=saveFile)
+    fileMenu.add_separator()
+    fileMenu.add_command(label="Exit", command=root.quit)
 
 ## Create the the sheetframe that will display the data and returns the treeview that interacted with outside.
 def createDataview():
@@ -149,16 +189,17 @@ def createButtons():
     
     buttonFrame.grid(row=0, column=0, padx=10, pady=10, sticky="w")
     
-# Resize
 def resize_window(event):
     if(event.widget == root):
         winWeight = root.winfo_width()
         winHeight = root.winfo_height()
         root.columnconfigure(0, weight=winWeight)  
         root.rowconfigure(1, weight=winHeight)
-        
+
+# Call functions to create each part of the main window.
 treeview = createDataview()
 createButtons()
+createMenu()
 
 root.bind("<Configure>", resize_window)
 root.mainloop()
